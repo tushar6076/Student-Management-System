@@ -1,0 +1,58 @@
+services:
+  # --- MONGODB DATABASE ---
+  mongodb:
+    image: mongo:latest
+    container_name: quiz-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - quiz-network
+
+  # --- REDIS CACHE ---
+  redis:
+    image: redis:alpine
+    container_name: quiz-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - quiz-network
+
+  # --- BACKEND API ---
+  backend:
+    build: ./backend
+    container_name: quiz-backend
+    ports:
+      - "5000:5000"
+    environment:
+      # Points to the 'mongodb' service defined above
+      - DATABASE_URL=mongodb://mongodb:27017/studentDB?replicaSet=rs0&authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=5000
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - quiz-network
+
+  # --- FRONTEND UI ---
+  frontend:
+    build: ./frontend
+    container_name: quiz-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+    depends_on:
+      - backend
+    networks:
+      - quiz-network
+
+networks:
+  quiz-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
