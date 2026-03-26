@@ -66,4 +66,4 @@ VITE_API_URL: http://localhost:5000/api
 This project is licensed under the MIT License.
 
 
-**Everything is ready! Just copy-paste that into your `README.md`. Would you like me
+**Everything is ready! Just copy-paste that into your `README.md`.
